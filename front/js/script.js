@@ -1,4 +1,6 @@
-// Get API products
+// Faire appel à l'API qui contient les produits
+
+
 function fetchProducts(url){
     fetch('http://localhost:3000/api/products/')
       .then(function (res) {
@@ -7,9 +9,8 @@ function fetchProducts(url){
         }
       })
       .then(function (products) {
-       
+      
         console.table(products);
-        
         
         for(let product of products){
           
@@ -50,7 +51,7 @@ function fetchProducts(url){
         
       });
   }
-  // Calling fetch function to catch data and create the row of products
+  //Appeler la fonction fetch pour récupérer les données et créer les produits
   fetchProducts('http://localhost:3000/api/products/');
 
 

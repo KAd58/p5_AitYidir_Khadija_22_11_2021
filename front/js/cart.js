@@ -2,19 +2,48 @@
 
 let productLocalStorage= JSON.parse(localStorage.getItem("product"));
 const cart = document.getElementById("cart__items");
+let productListFiltred = [];
+//recupere la liste des produits de l'api dont les id sont stocker dans localstorage pour avoit l'information price avec fetch
+// fetch il faut passer la listes des id produits 
+// recuperer tt les produits avec fetch 
+// filtrer la liste des produits pour garder juste les produits qu'on a sur le localstorage
+ function getProducts(){
+fetch (`http://localhost:3000/api/products/`)
+.then(function (res) {
+   if (res.ok) {
+     return res.json();
+   }
+})
+.then( function (listProduct ) {
+  console.log(listProduct)
+  let list = listProduct;
+  let productBasket = productLocalStorage.map(product => product.idProduct) ;
+  console.log("productBasket",productBasket) ;
+  
 
-getCart();
+  productListFiltred = list.filter(el =>  productBasket.includes(el._id));
+      getCart(productListFiltred);
+      getTotals()
+     
+})
 
-function getCart()
+.catch (function(err){
+   console.log("api error",err);
+})
+}
+
+
+getProducts() ;
+function getCart(productList)
 {  
+   console.log('productList---------',productList);
    // si le panier est vide
-   if (!productLocalStorage )
+   if (productLocalStorage === null || productLocalStorage == 0 )
    {
       const emptyBasket = `<p>Votre panier est vide</p>`;
       cart.innerHTML = emptyBasket;
-
    }
-   // on crée les éléments manquants
+   // on crée les éléments manquants dans le local storage
    else
    {  
       for(let product in productLocalStorage)
@@ -62,7 +91,9 @@ function getCart()
          // Ajout du prix
          let productPrice = document.createElement("p");
          itemContentTitlePrice.appendChild(productPrice);
-         productPrice.innerHTML = productLocalStorage[product].price + " €";
+         const currentProduct = productList.find(p => p._id === productLocalStorage[product].idProduct);
+         console.log('prductCurrent',currentProduct);
+         productPrice.innerHTML = currentProduct.price + " €";
 
          // Ajout de la div "cart__item__content__settings"
          let itemContentSettings = document.createElement("div");
@@ -109,7 +140,7 @@ function getTotals()
    let elementsQuantity = document.getElementsByClassName('itemQuantity');
    let myLength = elementsQuantity.length;
    totalQuantity = 0;
-
+   //(expression initiale, condition, incrémentation)
    for (let i = 0; i < myLength; i++) 
    { 
       totalQuantity += elementsQuantity[i].valueAsNumber;
@@ -121,17 +152,17 @@ function getTotals()
 
    // On récupère le prix total
    totalPrice = 0;
-
+   console.log('prodtcuList------',productListFiltred)
    for (let i = 0; i < myLength; i++) 
    {
-      totalPrice += (elementsQuantity[i].valueAsNumber * productLocalStorage[i].price);
+      totalPrice += (elementsQuantity[i].valueAsNumber * productListFiltred[i].price);
    }
 
    let productTotalPrice = document.getElementById('totalPrice');
    productTotalPrice.innerHTML = totalPrice;
    console.log(totalPrice);
 }
-getTotals()
+
 
 // On modifie la quantité d'un produit dans le panier
 
@@ -229,7 +260,7 @@ function getForm() {
    });
 
    // Ecoute de la modification de l'email
-   form.email.addEventListener('change', function() {
+   form.email.addEventListener( 'change',function() {
       validEmail(this);
    });
 
@@ -241,6 +272,7 @@ function getForm() {
          firstNameErrorMsg.innerHTML = '';
       } else {
          firstNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+         
       }
    };
 
@@ -252,6 +284,7 @@ function getForm() {
          lastNameErrorMsg.innerHTML = '';
       } else {
          lastNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+        
       }
    };
 
@@ -263,6 +296,7 @@ function getForm() {
          addressErrorMsg.innerHTML = '';
       } else {
          addressErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+        
       }
    };
 
@@ -274,6 +308,7 @@ function getForm() {
          cityErrorMsg.innerHTML = '';
       } else {
          cityErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+        
       }
    };
 
@@ -285,14 +320,16 @@ function getForm() {
          emailErrorMsg.innerHTML = '';
       } else {
          emailErrorMsg.innerHTML = 'Email non valide.';
+         
       }
    };
+   
    }
-
- getForm();
-const orderButton = document.getElementById('order');
- function order() {
-  
+   getForm();
+ 
+ const orderButton = document.getElementById('order');
+ function orderSubmit() {
+ 
    console.log('order--------------')
    let firstName = document.getElementById("firstName").value;
    let lastName = document.getElementById("lastName").value;
@@ -300,6 +337,8 @@ const orderButton = document.getElementById('order');
    let city = document.getElementById("city").value;
    let email = document.getElementById("email").value;
    const contact = {firstName, lastName, address, city, email};
+
+   //création de l array products dans le local storage
    let products = [];
    console.log("ajout",productLocalStorage )
    productLocalStorage.forEach( function (product) {
@@ -311,8 +350,11 @@ const orderButton = document.getElementById('order');
    console.log("contact",contact);
    console.log("products",products);
    createOrder(contact, products);
+  
 }
-orderButton.addEventListener('click', order);
+
+
+orderButton.addEventListener('click', orderSubmit );
 
 function createOrder(contact, products) {
    fetch("http://localhost:3000/api/products/order", {
@@ -329,16 +371,17 @@ function createOrder(contact, products) {
       return res.json();
    }
    })
-   .then(function (order) {
-   console.log("order",order);
+   .then(function (data) {
+   
    localStorage.clear();
-   localStorage.setItem("orderId", order.orderId );
-   window.location.replace("./confirmation.html?orderId="+ order.orderId );
+   localStorage.setItem("orderId", data.orderId );
+   window.location.replace("./confirmation.html?orderId="+ data.orderId );
    
    })
    .catch(function (err) {
    alert("problème avec fetch: "+ err.message);
    });
 }
+
 
 

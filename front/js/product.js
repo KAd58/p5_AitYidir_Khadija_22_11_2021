@@ -41,7 +41,7 @@ function Products(url) {
       for (let i = 0; i < prod.colors.length; i++) {
         let option = document.createElement("option");
         option.innerText = prod.colors[i];
-        productColor.appendChild(option);
+        colorSelect.appendChild(option);
       }
     })
     .catch(function (err) {
@@ -68,7 +68,7 @@ function addToCart() {
         altimg : article.altTxt,
         color : choiceColor,
         name:article.name,
-        price: parseFloat(article.price),
+       // price: parseFloat(article.price),
         quantity: parseFloat(choiceQuantity),
         idProduct: id,
       };

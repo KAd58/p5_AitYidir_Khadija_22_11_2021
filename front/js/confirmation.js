@@ -1,6 +1,6 @@
 function main(){
-    const order = document.createElementById("orderId");
-    order.innerText = localStorage.getItem("orderId");
+    const orderId = document.getElementById("orderId");
+    orderId.innerHTML = localStorage.getItem("orderId");
 
     localStorage.clear();
 }
