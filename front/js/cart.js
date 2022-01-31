@@ -3,8 +3,7 @@
 let productLocalStorage= JSON.parse(localStorage.getItem("product"));
 const cart = document.getElementById("cart__items");
 let productListFiltred = [];
-//recupere la liste des produits de l'api dont les id sont stocker dans localstorage pour avoit l'information price avec fetch
-// fetch il faut passer la listes des id produits 
+
 // recuperer tt les produits avec fetch 
 // filtrer la liste des produits pour garder juste les produits qu'on a sur le localstorage
  function getProducts(){
@@ -15,15 +14,19 @@ fetch (`http://localhost:3000/api/products/`)
    }
 })
 .then( function (listProduct ) {
-  console.log(listProduct)
-  let list = listProduct;
-  let productBasket = productLocalStorage.map(product => product.idProduct) ;
-  console.log("productBasket",productBasket) ;
-  
 
-  productListFiltred = list.filter(el =>  productBasket.includes(el._id));
-      getCart(productListFiltred);
-      getTotals()
+  let list = listProduct;
+  if(productLocalStorage && productLocalStorage.length){
+   let productBasket = productLocalStorage.map(product => product.idProduct) ;
+   
+   
+ 
+   productListFiltred = list.filter(el =>  productBasket.includes(el._id));
+       getCart(productListFiltred);
+       modifyQuantity();
+       getTotals()
+  }
+  
      
 })
 
@@ -36,7 +39,7 @@ fetch (`http://localhost:3000/api/products/`)
 getProducts() ;
 function getCart(productList)
 {  
-   console.log('productList---------',productList);
+   
    // si le panier est vide
    if (productLocalStorage === null || productLocalStorage == 0 )
    {
@@ -92,7 +95,6 @@ function getCart(productList)
          let productPrice = document.createElement("p");
          itemContentTitlePrice.appendChild(productPrice);
          const currentProduct = productList.find(p => p._id === productLocalStorage[product].idProduct);
-         console.log('prductCurrent',currentProduct);
          productPrice.innerHTML = currentProduct.price + " €";
 
          // Ajout de la div "cart__item__content__settings"
@@ -148,11 +150,10 @@ function getTotals()
 
    let productTotalQuantity = document.getElementById('totalQuantity');
    productTotalQuantity.innerHTML = totalQuantity;
-   console.log(totalQuantity);
+   
 
    // On récupère le prix total
    totalPrice = 0;
-   console.log('prodtcuList------',productListFiltred)
    for (let i = 0; i < myLength; i++) 
    {
       totalPrice += (elementsQuantity[i].valueAsNumber * productListFiltred[i].price);
@@ -160,17 +161,19 @@ function getTotals()
 
    let productTotalPrice = document.getElementById('totalPrice');
    productTotalPrice.innerHTML = totalPrice;
-   console.log(totalPrice);
+   
 }
 
 
 // On modifie la quantité d'un produit dans le panier
 
-modifyQuantity();
+
 
 function modifyQuantity()
 {
+   
    let itemModif = document.querySelectorAll(".itemQuantity");
+  
 
    for (let j=0; j < itemModif.length; j++)
    { 
@@ -190,7 +193,7 @@ function modifyQuantity()
          localStorage.setItem("product",JSON.stringify(productLocalStorage));
 
          location.reload();// rafraichir la  page
-         alert("votre panier est à jour.")
+         //alert("votre panier est à jour.")
    
       });//fin addeventlistener
    }
@@ -271,7 +274,7 @@ function getForm() {
       if (letterRegExp.test(inputFirstName.value)) {
          firstNameErrorMsg.innerHTML = '';
       } else {
-         firstNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+         firstNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ. ex : Julie';
          
       }
    };
@@ -283,7 +286,7 @@ function getForm() {
       if (letterRegExp.test(inputLastName.value)) {
          lastNameErrorMsg.innerHTML = '';
       } else {
-         lastNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+         lastNameErrorMsg.innerHTML = 'Veuillez renseigner ce champ. ex : Dupont';
         
       }
    };
@@ -295,7 +298,7 @@ function getForm() {
       if (addressRegExp.test(inputAddress.value)) {
          addressErrorMsg.innerHTML = '';
       } else {
-         addressErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+         addressErrorMsg.innerHTML = 'Veuillez renseigner ce champ. ex : 20 rue de la Gloire';
         
       }
    };
@@ -307,7 +310,7 @@ function getForm() {
       if (letterRegExp.test(inputCity.value)) {
          cityErrorMsg.innerHTML = '';
       } else {
-         cityErrorMsg.innerHTML = 'Veuillez renseigner ce champ.';
+         cityErrorMsg.innerHTML = 'Veuillez renseigner ce champ. ex : Toulouse';
         
       }
    };
@@ -319,7 +322,7 @@ function getForm() {
       if (emailRegExp.test(inputEmail.value)) {
          emailErrorMsg.innerHTML = '';
       } else {
-         emailErrorMsg.innerHTML = 'Email non valide.';
+         emailErrorMsg.innerHTML = 'Email non valide. ex : julie.dupont@gmail.com';
          
       }
    };
@@ -329,8 +332,7 @@ function getForm() {
  
  const orderButton = document.getElementById('order');
  function orderSubmit() {
- 
-   console.log('order--------------')
+  
    let firstName = document.getElementById("firstName").value;
    let lastName = document.getElementById("lastName").value;
    let address = document.getElementById("address").value;
@@ -340,24 +342,25 @@ function getForm() {
 
    //création de l array products dans le local storage
    let products = [];
-   console.log("ajout",productLocalStorage )
-   productLocalStorage.forEach( function (product) {
-     for (let i = 0; i<productLocalStorage.length; i++ ) {
-        products.push(productLocalStorage[i].idProduct);
-     }
-              
-   })
-   console.log("contact",contact);
-   console.log("products",products);
-   createOrder(contact, products);
   
+   if(contact.firstName && contact.lastName && contact.address && contact.city && contact.email &&  productLocalStorage && productLocalStorage.length) {
+      
+      productLocalStorage.forEach( function (product) {
+      for (let i = 0; i<productLocalStorage.length; i++ ) {
+         products.push(productLocalStorage[i].idProduct);
+      }       
+   })
+   createOrder(contact, products);
+   }else{
+   alert("Veuillez remplir le formulaire de contact")
+   }
 }
-
-
 orderButton.addEventListener('click', orderSubmit );
 
 function createOrder(contact, products) {
-   fetch("http://localhost:3000/api/products/order", {
+   console.log('contact',contact)
+   if(products && products.length && contact ) {
+      fetch("http://localhost:3000/api/products/order", {
    method: "POST",
    body: JSON.stringify({contact, products}),
    headers: {
@@ -379,8 +382,11 @@ function createOrder(contact, products) {
    
    })
    .catch(function (err) {
-   alert("problème avec fetch: "+ err.message);
+   alert("Impossible de passer la commande");
+   console.log(err)
    });
+    }
+   
 }
 
 

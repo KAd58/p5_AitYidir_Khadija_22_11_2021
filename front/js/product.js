@@ -1,8 +1,6 @@
 let params = new URL(document.location).searchParams;
 let id = params.get("id");
 
-console.log(params)
-console.log("id",id)
 
 const productImg= document.querySelector(".item__img");
 const productName = document.querySelector("#title");
@@ -14,9 +12,9 @@ const productQuantity = document.querySelector("#quantity");
 
 Products();
 
-// Get API products
+// Faire appel à l'API qui contient les produits
 function Products(url) {
-  console.log("function")
+  
   fetch(`http://localhost:3000/api/products/${id}`)
   
     .then(function (res) {
@@ -35,7 +33,7 @@ function Products(url) {
     document.querySelector(".item__img").insertAdjacentHTML("afterbegin", `<img src="${article.imageUrl}" alt="Photographie d'un canapé ${article.altTxt}">`);
     
     
-     console.log(prod)
+    
 
      let colorSelect = document.getElementById("colors");
       for (let i = 0; i < prod.colors.length; i++) {
@@ -57,7 +55,7 @@ function addToCart() {
   
 
   addToCartBtn.addEventListener("click", function(event) {
-    console.log("ajout")
+    
     if(productQuantity.value > 0 && productQuantity.value<=100){
       let choiceColor = productColor.value;
       let choiceQuantity = productQuantity.value;
@@ -71,8 +69,8 @@ function addToCart() {
        // price: parseFloat(article.price),
         quantity: parseFloat(choiceQuantity),
         idProduct: id,
-      };
-      console.log(productAdded)
+      } 
+    
     
     //-----------------Local storage------------------
 
@@ -86,7 +84,7 @@ function addToCart() {
         alert (`Votre commande de ${choiceQuantity} ${article.name} ${choiceColor} est ajoutée au panier
       Pour consulter votre panier, cliquez sur OK`)
         window.location.href = "cart.html"
-    }; 
+    }
     
     let productLocalStorage= JSON.parse(localStorage.getItem("product"));
     
@@ -100,7 +98,7 @@ function addToCart() {
               let qtyBasket = parseInt(productAdded.quantity) + parseInt(result.quantity);
               result.quantity = qtyBasket;
               localStorage.setItem("product",JSON.stringify(productLocalStorage));
-              console.log(productLocalStorage);
+              
               addConfirm();
             
 
@@ -116,10 +114,12 @@ function addToCart() {
         productLocalStorage = [];
         productLocalStorage.push(productAdded);
         localStorage.setItem("product",JSON.stringify(productLocalStorage));
-        console.table(productLocalStorage);
+        
         addConfirm();
       }
     
+    }else {
+      alert ("Veuillez saisir une quantité.")
     }
   
 } )

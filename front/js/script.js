@@ -9,9 +9,7 @@ function fetchProducts(url){
         }
       })
       .then(function (products) {
-      
-        console.table(products);
-        
+              
         for(let product of products){
           
           /*création de l'element a*/
